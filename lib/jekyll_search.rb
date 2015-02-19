@@ -28,7 +28,7 @@ module Jekyll
           settings = site.config['search']
 
           client = Elasticsearch::Client.new log: false
-          client.indices.delete index: 'documentation'
+          create_index(client)
 
           for page in site.pages
             body = {
@@ -44,6 +44,14 @@ module Jekyll
         def clean_content(dirty)
           Loofah.fragment(dirty).to_text
           #.gsub(/([\r\n\t\s]+)/, ' ').strip
+        end
+        
+        def create_index(client)
+          if client.indices.exists index: 'documentation'
+            client.indices.delete index: 'documentation'
+          end
+
+          client.indices.create index: 'documentation'
         end
       end
     end
