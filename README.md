@@ -4,6 +4,10 @@
 [![gem](https://img.shields.io/gem/v/jekyll_search.svg)](https://rubygems.org/gems/jekyll_search)
 [![license](https://img.shields.io/badge/license-MIT-lightgrey.svg)](http://opensource.org/licenses/MIT)
 
+## Live demo
+
+See it in action on my [blog](http://choffmeister.de/search.html).
+
 ## Installation
 
 Add this line to your application's Gemfile:
