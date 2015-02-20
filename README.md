@@ -30,11 +30,39 @@ And then execute:
 
 ## Usage
 
+First you need a machine with [Elasticsearch][elasticsearch] installed. Then configure the search plugin by adding
+the following entries into your Jekyll `_config.yml` (replace the `host` entry if needed):
+
 ```yaml
-# TODO
+# Search index settings
+search:
+  host: localhost:9200
 ```
 
-Now run `jekyll deploy`
+Now run `jekyll index` to iterate over all pages and index them with Elasticsearch. With `jekyll search my query`
+you can throw some test searches against your freshly created search index.
+
+If you want to customize how Elasticsearch creates the search index, then provide an additional `index` property
+in your `_config.yml` (see [here][elasticsearch-createindex]:
+
+```yaml
+# Search index settings
+search:
+  host: localhost:9200
+  index:
+    mappings:
+      page:
+        properties:
+          url:
+            type: string
+            analyzer: keyword
+          title:
+            type: string
+            analyzer: english
+          content:
+            type: string
+            analyzer: english
+```
 
 ## Contributing
 
@@ -43,3 +71,6 @@ Now run `jekyll deploy`
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create a new Pull Request
+
+[elasticsearch]: http://www.elasticsearch.org/
+[elasticsearch-createindex]: http://www.rubydoc.info/gems/elasticsearch-api/Elasticsearch/API/Indices/Actions#create-instance_method
