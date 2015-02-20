@@ -37,31 +37,35 @@ the following entries into your Jekyll `_config.yml` (replace the `host` entry i
 # Search index settings
 search:
   host: localhost:9200
+  index:
+    name: myindex
 ```
 
 Now run `jekyll index` to iterate over all pages and index them with Elasticsearch. With `jekyll search my query`
 you can throw some test searches against your freshly created search index.
 
-If you want to customize how Elasticsearch creates the search index, then provide an additional `index` property
-in your `_config.yml` (see [here][elasticsearch-createindex]:
+If you want to customize how Elasticsearch creates the search index, then provide an additional `index.settings`
+property in your `_config.yml` (see [here][elasticsearch-createindex]:
 
 ```yaml
 # Search index settings
 search:
   host: localhost:9200
   index:
-    mappings:
-      page:
-        properties:
-          url:
-            type: string
-            analyzer: keyword
-          title:
-            type: string
-            analyzer: english
-          content:
-            type: string
-            analyzer: english
+    name: myindex
+    settings:
+      mappings:
+        page:
+          properties:
+            url:
+              type: string
+              analyzer: keyword
+            title:
+              type: string
+              analyzer: english
+            content:
+              type: string
+              analyzer: english
 ```
 
 ## Contributing
