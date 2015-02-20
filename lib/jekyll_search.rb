@@ -73,19 +73,18 @@ module Jekyll
       class << self
         def init_with_program(prog)
           prog.command(:search) do |c|
-            c.syntax "search"
+            c.syntax "search query"
             c.description 'Searches a search index in Elasticsearch.'
 
             c.action do |args, options|
+              query = args.join(' ').strip
               options["serving"] = false
-              Search.process(options)
+              Search.process(options, query)
             end
           end
         end
 
-        def process(options)
-          puts 'Enter query string:'
-          query = gets
+        def process(options, query)
           options = configuration_from_options(options)
           site = Jekyll::Site.new(options)
           settings = site.config['search']
@@ -93,10 +92,12 @@ module Jekyll
           client = Elasticsearch::Client.new host: settings['host'], log: false
           result = client.search index: 'documentation', body: { query: { match: { content: query } }, highlight: { fields: { content: {} }} }
 
+          puts "Query: #{query}"
           puts "Total: #{result['hits']['total']}"
           puts "Max score: #{result['hits']['max_score']}"
           for hit in result['hits']['hits']
             puts "Hit at #{hit['_source']['url']} (#{hit['_score']})"
+            hit['highlight']['content'].each { |c| puts '- ' + c }
           end
         end
       end
