@@ -31,6 +31,7 @@ module Jekyll
           create_index(client, settings)
 
           pages = site.pages.
+              select { |p| p.url =~ /\.html$/ }.
               select { |p| p.data['searchable'].nil? or p.data['searchable'] != false }
 
           for page in pages
