@@ -36,13 +36,23 @@ module Jekyll
               select { |p| p.data['searchable'].nil? or p.data['searchable'] != false }
 
           for page in pages
-            body = {
+            page_body = {
               url: site.baseurl + page.url,
               title: page.data['title'],
               content: JekyllSearch::HtmlProcessor.strip_html(page.content)
             }
 
-            client.index index: settings['index']['name'], type: 'page', body: body
+            client.index index: settings['index']['name'], type: 'page', body: page_body
+
+            for section in JekyllSearch::HtmlProcessor.detect_sections(page.content)
+              section_body = {
+                url: if section[:id] != nil then site.baseurl + page.url + '#' + section[:id] else site.baseurl + page.url end,
+                title: if section[:title] != nil then section[:title] else page.data['title'] end,
+                content: JekyllSearch::HtmlProcessor.strip_html(section[:content])
+              }
+
+              client.index index: settings['index']['name'], type: 'section', body: section_body
+            end
           end
         end
 
