@@ -31,23 +31,22 @@ module Jekyll
           client = Elasticsearch::Client.new host: settings['host'], log: false
           create_index(client, settings)
 
-          pages = site.pages.
-              select { |p| p.url =~ /\.html$/ }.
-              select { |p| p.data['searchable'].nil? or p.data['searchable'] != false }
+          pages = collect_content(site, site.pages)
+          posts = collect_content(site, site.posts)
 
-          for page in pages
+          for page in pages + posts
             page_body = {
-              url: site.baseurl + page.url,
-              title: page.data['title'],
-              content: JekyllSearch::HtmlProcessor.strip_html(page.content)
+              url: page[:url],
+              title: page[:title],
+              content: JekyllSearch::HtmlProcessor.strip_html(page[:content])
             }
 
             client.index index: settings['index']['name'], type: 'page', body: page_body
 
-            for section in JekyllSearch::HtmlProcessor.detect_sections(page.content)
+            for section in JekyllSearch::HtmlProcessor.detect_sections(page[:content])
               section_body = {
-                url: if section[:id] != nil then site.baseurl + page.url + '#' + section[:id] else site.baseurl + page.url end,
-                title: if section[:title] != nil then section[:title] else page.data['title'] end,
+                url: if section[:id] != nil then site.baseurl + page[:url] + '#' + section[:id] else site.baseurl + page[:url] end,
+                title: if section[:title] != nil then section[:title] else page[:title] end,
                 content: JekyllSearch::HtmlProcessor.strip_html(section[:content])
               }
 
@@ -62,6 +61,19 @@ module Jekyll
           end
 
           client.indices.create index: settings['index']['name'], body: (settings['index']['settings'] or {})
+        end
+
+        def collect_content(site, elements)
+          elements.
+            select { |p| p.url =~ /\.html$/ }.
+            select { |p| p.data['searchable'].nil? or p.data['searchable'] != false }.
+            map do |p|
+              {
+                :url => site.baseurl + p.url,
+                :title => p.data['title'],
+                :content => p.content
+              }
+            end
         end
       end
     end
