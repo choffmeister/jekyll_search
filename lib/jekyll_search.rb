@@ -41,7 +41,7 @@ module Jekyll
               content: clean_content(page.content)
             }
 
-            client.index index: 'documentation', type: 'page', body: body
+            client.index index: settings['index']['name'], type: 'page', body: body
           end
         end
 
@@ -61,11 +61,11 @@ module Jekyll
         end
 
         def create_index(client, settings)
-          if client.indices.exists index: 'documentation'
-            client.indices.delete index: 'documentation'
+          if client.indices.exists index: settings['index']['name']
+            client.indices.delete index: settings['index']['name']
           end
 
-          client.indices.create index: 'documentation', body: (settings['index'] or {})
+          client.indices.create index: settings['index']['name'], body: (settings['index']['settings'] or {})
         end
       end
     end
@@ -91,7 +91,7 @@ module Jekyll
           settings = site.config['search']
 
           client = Elasticsearch::Client.new host: settings['host'], log: false
-          result = client.search index: 'documentation', body: { query: { match: { content: query } }, highlight: { fields: { content: {} }} }
+          result = client.search index: settings['index']['name'], body: { query: { match: { content: query } }, highlight: { fields: { content: {} }} }
 
           puts "Query: #{query}"
           puts "Total: #{result['hits']['total']}"
