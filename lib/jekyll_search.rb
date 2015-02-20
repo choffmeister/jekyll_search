@@ -30,7 +30,10 @@ module Jekyll
           client = Elasticsearch::Client.new log: false
           create_index(client)
 
-          for page in site.pages
+          pages = site.pages.
+              select { |p| p.data['searchable'].nil? or p.data['searchable'] != false }
+
+          for page in pages
             body = {
               url: site.baseurl + page.url,
               title: page.data['title'],
@@ -45,7 +48,7 @@ module Jekyll
           Loofah.fragment(dirty).to_text
           #.gsub(/([\r\n\t\s]+)/, ' ').strip
         end
-        
+
         def create_index(client)
           if client.indices.exists index: 'documentation'
             client.indices.delete index: 'documentation'
@@ -77,11 +80,10 @@ module Jekyll
           client = Elasticsearch::Client.new log: false
           result = client.search index: 'documentation', body: { query: { match: { content: query } }, highlight: { fields: { content: {} }} }
 
-          puts "Total: #{result['total']}"
-          puts "Max score: #{result['max_score']}"
+          puts "Total: #{result['hits']['total']}"
+          puts "Max score: #{result['hits']['max_score']}"
           for hit in result['hits']['hits']
             puts "Hit at #{hit['_source']['url']} (#{hit['_score']})"
-            puts hit['highlight']['content']
           end
         end
       end
