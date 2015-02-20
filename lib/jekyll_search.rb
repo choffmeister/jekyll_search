@@ -2,6 +2,7 @@ require 'jekyll'
 require 'elasticsearch'
 require 'loofah'
 require 'loofah/helpers'
+require 'jekyll_search/html_processor'
 
 module Jekyll
   module Commands
@@ -38,26 +39,11 @@ module Jekyll
             body = {
               url: site.baseurl + page.url,
               title: page.data['title'],
-              content: clean_content(page.content)
+              content: JekyllSearch::HtmlProcessor.strip_html(page.content)
             }
 
             client.index index: settings['index']['name'], type: 'page', body: body
           end
-        end
-
-        def clean_content(dirty)
-          strip_pre = Loofah::Scrubber.new do |node|
-            if node.name == 'pre'
-              node.remove
-              Loofah::Scrubber::STOP
-            end
-          end
-
-          Loofah.fragment(dirty).
-              scrub!(:prune).
-              scrub!(strip_pre).
-              to_text.
-              gsub(/([\r\n\t\s]+)/, ' ').strip
         end
 
         def create_index(client, settings)
