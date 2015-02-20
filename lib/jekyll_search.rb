@@ -86,8 +86,11 @@ module Jekyll
         def process(options)
           puts 'Enter query string:'
           query = gets
+          options = configuration_from_options(options)
+          site = Jekyll::Site.new(options)
+          settings = site.config['search']
 
-          client = Elasticsearch::Client.new log: false
+          client = Elasticsearch::Client.new host: settings['host'], log: false
           result = client.search index: 'documentation', body: { query: { match: { content: query } }, highlight: { fields: { content: {} }} }
 
           puts "Total: #{result['hits']['total']}"
