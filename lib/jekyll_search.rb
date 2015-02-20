@@ -28,7 +28,7 @@ module Jekyll
           settings = site.config['search']
 
           client = Elasticsearch::Client.new host: settings['host'], log: false
-          create_index(client)
+          create_index(client, settings)
 
           pages = site.pages.
               select { |p| p.data['searchable'].nil? or p.data['searchable'] != false }
@@ -49,12 +49,12 @@ module Jekyll
           #.gsub(/([\r\n\t\s]+)/, ' ').strip
         end
 
-        def create_index(client)
+        def create_index(client, settings)
           if client.indices.exists index: 'documentation'
             client.indices.delete index: 'documentation'
           end
 
-          client.indices.create index: 'documentation'
+          client.indices.create index: 'documentation', body: (settings['index'] or {})
         end
       end
     end
