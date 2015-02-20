@@ -45,8 +45,18 @@ module Jekyll
         end
 
         def clean_content(dirty)
-          Loofah.fragment(dirty).to_text
-          #.gsub(/([\r\n\t\s]+)/, ' ').strip
+          strip_pre = Loofah::Scrubber.new do |node|
+            if node.name == 'pre'
+              node.remove
+              Loofah::Scrubber::STOP
+            end
+          end
+
+          Loofah.fragment(dirty).
+              scrub!(:prune).
+              scrub!(strip_pre).
+              to_text.
+              gsub(/([\r\n\t\s]+)/, ' ').strip
         end
 
         def create_index(client, settings)
