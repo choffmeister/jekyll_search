@@ -27,7 +27,7 @@ module Jekyll
           site.process
           settings = site.config['search']
 
-          client = Elasticsearch::Client.new log: false
+          client = Elasticsearch::Client.new host: settings['host'], log: false
           create_index(client)
 
           pages = site.pages.

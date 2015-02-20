@@ -30,11 +30,17 @@ And then execute:
 
 ## Usage
 
+First you need a machine with [Elasticsearch](http://www.elasticsearch.org/) installed. Then configure the search
+plugin by adding the following entries into your Jekyll `_config.yml` (replace the `host` entry if needed):
+
 ```yaml
-# TODO
+# Search index settings
+search:
+  host: localhost:9200
 ```
 
-Now run `jekyll deploy`
+Now run `jekyll index` to iterate over all pages and index them with Elasticsearch. With `jekyll search` you can
+throw some test searches against your freshly created search index.
 
 ## Contributing
 
