@@ -42,10 +42,59 @@ search:
 ```
 
 Now run `jekyll index` to iterate over all pages and index them with Elasticsearch. With `jekyll search my query`
-you can throw some test searches against your freshly created search index.
+you can throw some test searches against your freshly created search index. When you plan to integrate a AJAX
+based search into your Jekyll page, then the following `curl` example should help to get started (see also [here][elasticsearch-searchapi]):
+
+```text
+curl -XPOST localhost:9200/myindex/section/_search?pretty -d '{
+  "query": {
+    "match_phrase_prefix": {
+      "content": {
+        "query": "I SEARCH FOR SOMETHING",
+        "slop": 10
+      }
+    }
+  },
+  "highlight": {
+    "fields": {
+      "content": {}
+    }
+  }
+}'
+```
+
+```json
+{
+  // ...
+  "hits": {
+    "total": 7,
+    "max_score": 0.61569,
+    "hits": [
+      {
+        // ...
+        "_score" : 0.61569,
+        "_source": {
+          "url": "/link-to-page.html#headline-id",
+          "title": "The title",
+          "content": "The content"
+        },
+        "highlight": {
+          "content": [
+            "Some <em>highlighted</em> stuff"
+          ]
+        }
+      }
+      // ...
+    ]
+  }
+  // ...
+}
+```
+
+## Customize search index
 
 If you want to customize how Elasticsearch creates the search index, then provide an additional `index.settings`
-property in your `_config.yml` (see [here][elasticsearch-createindex]:
+property in your `_config.yml` (see also [here][elasticsearch-createindex]):
 
 ```yaml
 # Search index settings
@@ -56,6 +105,17 @@ search:
     settings:
       mappings:
         page:
+          properties:
+            url:
+              type: string
+              analyzer: keyword
+            title:
+              type: string
+              analyzer: english
+            content:
+              type: string
+              analyzer: english
+        section:
           properties:
             url:
               type: string
@@ -77,4 +137,5 @@ search:
 5. Create a new Pull Request
 
 [elasticsearch]: http://www.elasticsearch.org/
+[elasticsearch-searchapi]: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-search.html
 [elasticsearch-createindex]: http://www.rubydoc.info/gems/elasticsearch-api/Elasticsearch/API/Indices/Actions#create-instance_method
