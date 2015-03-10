@@ -26,7 +26,7 @@ module JekyllSearch
         if node.name =~ /^h\d$/
           result << current
           current = { :id => nil, :title => nil, :content => '' }
-          current[:id] = if node.has_attribute?('id') then node.attribute('id').value else nil end
+          current[:id] = extract_headline_id(node)
           current[:title] = node.text
         else
           current[:content] += node.to_html
@@ -37,6 +37,22 @@ module JekyllSearch
       end
 
       result
+    end
+
+    def self.extract_headline_id(node)
+      if node.has_attribute?('id')
+        node.attribute('id').value
+      else
+        children = []
+        node.traverse { |n| children << n }
+        children_with_id = children.select { |n| n['id'] }
+
+        if children_with_id.count == 1
+          children_with_id.first['id']
+        else
+          nil
+        end
+      end
     end
   end
 end
