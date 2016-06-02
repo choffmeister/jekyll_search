@@ -28,7 +28,7 @@ module Jekyll
           site.process
           settings = site.config['search']
 
-          host = ENV['JEKYLL_INDEX_HOST'] || settings['host']
+          host = ENV['JEKYLL_SEARCH_HOST'] || settings['host']
           client = Elasticsearch::Client.new host: host, log: false
           create_index(client, settings)
 
