@@ -65,7 +65,7 @@ module Jekyll
 
         def collect_content(site, elements)
           elements.
-            select { |p| p.url =~ /\.html$/ }.
+            select { |p| p['name'] and p['name'] =~ /\.(html|md)$/ }.
             select { |p| p.data['searchable'].nil? or p.data['searchable'] != false }.
             map do |p|
               {
