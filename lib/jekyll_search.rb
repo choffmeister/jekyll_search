@@ -28,7 +28,8 @@ module Jekyll
           site.process
           settings = site.config['search']
 
-          client = Elasticsearch::Client.new host: settings['host'], log: false
+          host = ENV['JEKYLL_INDEX_HOST'] || settings['host']
+          client = Elasticsearch::Client.new host: host, log: false
           create_index(client, settings)
 
           pages = collect_content(site, site.pages)
